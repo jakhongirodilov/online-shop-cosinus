@@ -1,0 +1,48 @@
+<!-- profile.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h5 class="mt-3">{{ user.username }}</h5>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted">Profile Information</h6>
+                        <p><strong>Username:</strong> {{ user.username }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        <!-- Add more profile information as needed -->
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted">Addresses</h6>
+                        {% if user.addresses.all %}
+                            <ul>
+                                {% for address in user.addresses.all %}
+                                    <li>{{ address.street_address }}, {{ address.city }}, {{ address.region }}, {{ address.zip_code }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No addresses available.</p>
+                        {% endif %}
+                        <a href="{% url 'add_address' %}" class="btn btn-primary btn-sm">Add Address</a>
+                    </div>
+
+                    <hr>
+
+                    <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-block">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

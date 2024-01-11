@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+    }
+
+    .cart-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-item {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .item-details {
+        flex: 1;
+        margin: 0 auto;
+    }
+
+    .quantity-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .quantity-actions a {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 4px;
+        margin: 0 5px;
+    }
+
+    .delete-btn {
+        background-color: #dc3545;
+    }
+
+    .total-price {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .order-btn {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+</style>
+
+    {% if cart_items %}
+        <div class="cart-container">
+            <h2>Your Cart</h2>
+            
+            {% for cart_item in cart_items %}
+                <div class="cart-item">
+                    <div class="item-details">
+                        <p>{{ cart_item.product.name }}  -  Price: ${{ cart_item.product.cost }}  -  Quantity: {{ cart_item.quantity }}</p>
+                    </div>
+                    <div class="quantity-actions">
+                        <a href="{% url 'add_to_cart' pk=cart_item.product.pk %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                            </svg>
+                        </a>
+                        <a href="{% url 'reduce_quantity' pk=cart_item.product.pk %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/>
+                            </svg>
+                        </a>
+                        <a href="{% url 'remove_from_cart' pk=cart_item.product.pk %}" >Delete</a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="total-price">
+                <p>Total Price: ${{ total_price }}</p>
+            </div>
+            
+            
+            <a class="order-btn" href="{% url 'place_order' %}">Place Order</a>
+        </div>
+    {% else %}
+        <p style="text-align: center;">No products available in your cart...</p>
+        
+    {% endif %}
+
+{% endblock %}

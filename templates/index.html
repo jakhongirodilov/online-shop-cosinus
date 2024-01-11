@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Filter on the left -->
+      <div class="col-md-3">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Filter Products</h5>
+            <form method="get" action="{% url 'home' %}">
+              {{ form.as_p }}
+              <button type="submit" class="btn btn-primary mt-3">Apply Filter</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Cards on the right -->
+      <div class="col-md-9">
+        <h2 class="mb-4">Products</h2>
+
+        {% if products %}
+          <div class="row">
+            {% for product in products %}
+              <div class="col-md-4 mb-4">
+                <div class="card">
+                  <!-- <img src="" class="card-img-top" alt="{{ product.name }}"> -->
+                  <div class="card-body">
+                    <h5 class="card-title"><a href="{% url 'product' id=product.id %}">{{ product.name }}</a></h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text"><strong>Price:</strong> ${{ product.cost }}</p>
+                    <p class="card-text"><strong>Category:</strong> {{ product.category.name }}</p>
+
+                    <!-- Buttons for Edit, Delete, and Add to Cart -->
+                    <div class="d-flex justify-content-between mt-3">
+                        {% if user.is_authenticated and user == product.user %}
+                            <a href="{% url 'edit_product' pk=product.pk %}" class="btn btn-outline-secondary">Edit</a>
+                            <a href="{% url 'delete_product' pk=product.pk %}" class="btn btn-outline-danger">Delete</a>
+                        {% endif %}
+                      <a href="{% url 'add_to_cart' pk=product.pk %}" class="btn btn-outline-success">Add to Cart</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info" role="alert">
+            No products available.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

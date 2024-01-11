@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f8f8;
+  color: #333;
+}
+
+.cart-container {
+  max-width: 600px;
+  margin: 50px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.cart-title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.cart-list {
+  list-style: none;
+  padding: 0;
+}
+
+.cart-item {
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-details {
+  flex: 1;
+}
+
+.price {
+  font-weight: bold;
+  color: #008000;
+}
+
+.address-section {
+  margin-top: 30px;
+}
+
+.address-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.select-address,
+.input-phone {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 5px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.select-address:focus,
+.input-phone:focus {
+  border-color: #3498db;
+}
+
+.place-order-btn {
+  background-color: #3498db;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.place-order-btn:hover {
+  background-color: #2980b9;
+}
+</style>
+
+  <div class="cart-container">
+    <h1 class="cart-title">Your Cart</h1>
+    <ul class="cart-list">
+      {% for cart_object in cart_objects %}
+        <li class="cart-item">
+          <div class="product-details">
+            <span class="product-name">{{ cart_object.product.name }} | </span>
+            <span class="quantity">Quantity: {{ cart_object.quantity }}</span>
+          </div>
+          <span class="price">Price: ${{ cart_object.total_cost }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="address-section">
+      <h2 class="address-title">Choose Address</h2>
+      <form method="post" action="{% url 'place_order' %}" class="order-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="address">Select Address:</label>
+          <select name="address" id="address" class="select-address">
+            {% for address in addresses %}
+              <option value="{{ address.id }}">{{ address }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" name="phone" id="phone" class="input-phone" placeholder="+998771234567" required>
+        </div>
+
+        <button type="submit" class="place-order-btn">Place Your Order</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

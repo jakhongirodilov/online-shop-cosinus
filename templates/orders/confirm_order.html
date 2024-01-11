@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Confirm Order</h2>
+  <p>Are you sure you want to complete the order for {{ order.product.name }}?</p>
+  <form method="post" action="{% url 'complete_order' order.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Yes, Complete Order</button>
+    <a href="{% url 'order' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

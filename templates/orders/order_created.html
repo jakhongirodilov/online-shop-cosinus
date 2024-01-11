@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Success</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f8f8f8;
+      color: #333;
+      text-align: center;
+      margin: 50px;
+    }
+
+    h1 {
+      font-size: 36px;
+      color: #008000;
+      margin-bottom: 20px;
+    }
+
+    h4 {
+      font-size: 18px;
+      margin-top: 0;
+      color: #333;
+    }
+
+    a {
+      color: #3498db;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    a:hover {
+      color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h1>You have successfully ordered!</h1>
+  <h4><a href="{% url 'orders' %}">Go to your orders page</a></h4>
+</body>
+</html>
