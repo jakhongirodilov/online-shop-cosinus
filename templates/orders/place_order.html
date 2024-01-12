@@ -115,7 +115,7 @@ label {
 
     <div class="address-section">
       <h2 class="address-title">Choose Address</h2>
-      <form method="post" action="{% url 'place_order' %}" class="order-form">
+      <form method="post" action="{% url 'checkout' %}" class="order-form">
         {% csrf_token %}
 
         <div class="form-group">

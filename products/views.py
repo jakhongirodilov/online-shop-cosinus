@@ -1,6 +1,10 @@
+import stripe
+
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.conf import settings
 
 from accounts.models import Address
 
@@ -146,41 +150,130 @@ def remove_from_cart(request, pk):
 
 
 # buyurtma berish
-def order(request):
-    cart_objects = Cart.objects.filter(user=request.user)
+# def order(request):
+#     cart_objects = Cart.objects.filter(user=request.user)
 
+#     addresses = Address.objects.filter(user=request.user)
+
+#     for cart_object in cart_objects:
+#         cart_object.total_cost = cart_object.product.cost * cart_object.quantity
+
+#     context = {
+#         'cart_objects':cart_objects, 
+#         'addresses':addresses,
+#     }
+
+#     if request.method == 'POST':
+#         address_id = request.POST.get('address', '')
+#         selected_address = get_object_or_404(Address, id=address_id)
+#         phone = request.POST.get('phone', '')
+
+#         for cart_object in cart_objects:
+#             new_order = Order(
+#                 product = cart_object.product,
+#                 cost = cart_object.product.cost * cart_object.quantity,
+#                 quantity = cart_object.quantity,
+#                 customer = cart_object.user,
+#                 address = selected_address,
+#                 phone = phone
+#             )
+
+#             new_order.save()
+#             cart_object.delete()
+
+#         # new orders = []
+
+#         return render(request, 'orders/order_created.html', context)
+
+
+#     return render(request, 'orders/place_order.html', context)
+
+
+stripe.api_key = settings.STRIPE_PRIVATE_KEY
+
+@login_required
+@require_POST
+def create_stripe_checkout_session(request):
+    cart_objects = Cart.objects.filter(user=request.user)
     addresses = Address.objects.filter(user=request.user)
 
+    # Calculate total cost for each item in the cart
+    for cart_object in cart_objects:
+        cart_object.total_cost = cart_object.product.cost * cart_object.quantity
+
+    # Your existing context data
+    context = {
+        'cart_objects': cart_objects,
+        'addresses': addresses,
+    }
+
+    # Handle the checkout process
+    address_id = request.POST.get('address', '')
+    selected_address = get_object_or_404(Address, id=address_id)
+    phone = request.POST.get('phone', '')
+
+    # Create a list to store order details
+
+    try:
+        # Create a Stripe Checkout Session
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': cart_object.product.name,
+                            'description': cart_object.product.description,
+                        },
+                        'unit_amount': int(cart_object.product.cost * 100),  # Stripe uses cents
+                    },
+                    'quantity': cart_object.quantity,
+                }
+                for cart_object in cart_objects
+            ],
+            mode='payment',
+            success_url=settings.PAYMENT_SUCCESS_URL,
+            cancel_url=settings.PAYMENT_CANCEL_URL,
+        )
+
+        # Create an order for each item in the cart
+        for cart_object in cart_objects:
+            new_order = Order(
+                product=cart_object.product,
+                cost=cart_object.product.cost * cart_object.quantity,
+                quantity=cart_object.quantity,
+                customer=cart_object.user,
+                address=selected_address,
+                phone=phone
+            )
+            new_order.save()
+            # new_orders.append(new_order)
+
+        # Save the orders
+        # Order.objects.bulk_create(new_orders)
+
+        # Redirect to Stripe Checkout
+        return redirect(checkout_session.url)
+
+    except stripe.error.StripeError as e:
+        # Handle errors, you might want to log or show an error message to the user
+        return render(request, 'orders/error.html', {'error': str(e)})
+    
+
+@login_required
+def place_order(request):
+    cart_objects = Cart.objects.filter(user=request.user)
+    addresses = Address.objects.filter(user=request.user)
+
+    # Calculate total cost for each item in the cart
     for cart_object in cart_objects:
         cart_object.total_cost = cart_object.product.cost * cart_object.quantity
 
     context = {
-        'cart_objects':cart_objects, 
-        'addresses':addresses,
+        'cart_objects': cart_objects,
+        'addresses': addresses,
     }
-
-    if request.method == 'POST':
-        address_id = request.POST.get('address', '')
-        selected_address = get_object_or_404(Address, id=address_id)
-        phone = request.POST.get('phone', '')
-
-        for cart_object in cart_objects:
-            new_order = Order(
-                product = cart_object.product,
-                cost = cart_object.product.cost * cart_object.quantity,
-                quantity = cart_object.quantity,
-                customer = cart_object.user,
-                address = selected_address,
-                phone = phone
-            )
-
-            new_order.save()
-            cart_object.delete()
-
-        # new orders = []
-
-        return render(request, 'orders/order_created.html', context)
-
 
     return render(request, 'orders/place_order.html', context)
 
@@ -190,6 +283,13 @@ def orders(request):
     context = {'orders':orders}
 
     return render(request, 'orders/orders.html', context)
+
+
+def success(request):
+    return render(request, 'orders/order_created.html')
+
+def fail(request):
+    return render(request, 'orders/order_failed.html')
 
 
 #buyurtmani yakunlash
