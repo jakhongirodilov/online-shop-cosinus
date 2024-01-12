@@ -51,6 +51,7 @@ Ushbu loyiha "Online Shop - Cosinus" elektron do'konning to'liq veb-versiyasini 
 
 7. Xarid uchun quyidagi karta ma'lumotlaridan foydalanish talab qilinadi:
 
-    Karta raqami: 4242 4242 4242 4242
-    Amal qilish muddati: 12/34
-    CVC: 3 ta har qanday raqam (masalan: 123)
+   - **Karta raqami:** 4242 4242 4242 4242
+   - **Amal qilish muddati:** 12/34
+   - **CVC:** 3 ta har qanday raqam (masalan: 123)
+
